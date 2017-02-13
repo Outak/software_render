@@ -1,8 +1,15 @@
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <array>
 #include <memory>
 
 #include <SDL2/SDL.h>
+
+#include "geometry.h"
 
 class sdl_exception : std::exception
 {
@@ -13,6 +20,13 @@ public:
 
 private:
     std::string _msg;
+};
+
+class sdl_context
+{
+public:
+    virtual ~sdl_context() {}
+    virtual void loop() = 0;
 };
 
 class sdl_system
@@ -32,8 +46,7 @@ public:
         SDL_Quit();
     }
 
-    template<class Process>
-    void loop(Process&& process)
+    void loop(sdl_context& context)
     {
         SDL_Event event;
         while(_work)
@@ -53,7 +66,7 @@ public:
                 }
             }
 
-            process();
+            context.loop();
         }
     }
 
@@ -335,7 +348,7 @@ public:
 
     uint32_t& at(int x, int y)
     {
-        return *(reinterpret_cast<uint32_t*>(((uint8_t*)_pixels) + y*_pitch + x*sizeof(uint32_t)));
+        return *(reinterpret_cast<uint32_t*>(((uint8_t*)_pixels) + (_height - y)*_pitch + x*sizeof(uint32_t)));
     }
 
 private:
@@ -346,30 +359,141 @@ private:
     int _height;
 };
 
+class model
+{
+public:
+    model(const std::string& file_name)
+    {
+        std::ifstream file(file_name);
+        if (!file.good())
+        {
+            throw std::runtime_error(std::string("can't open model file: ") + file_name);
+        }
+        std::string line;
+        while (!file.eof()) {
+            std::getline(file, line);
+            std::istringstream iss(line.c_str());
+            char trash;
+            if (!line.compare(0, 2, "v ")) {
+                iss >> trash;
+                Vec3f v;
+                for (int i=0;i<3;i++) iss >> v.raw[i];
+                _vertexes.push_back(v);
+            } else if (!line.compare(0, 2, "f ")) {
+                std::array<int,3> f;
+                int itrash, idx;
+                iss >> trash; int i = 0;
+                while (iss >> idx >> trash >> itrash >> trash >> itrash) {
+                    idx--; // in wavefront obj all indices start at 1, not zero
+                    f[i++] = idx;
+                }
+                _faces.push_back(f);
+            }
+        }
+        std::cout << "# v# " << _vertexes.size() << " f# "  << _faces.size() << std::endl;
+    }
+
+    int nverts() {
+        return (int)_vertexes.size();
+    }
+
+    int nfaces() {
+        return (int)_faces.size();
+    }
+
+    std::array<int, 3> face(int idx) {
+        return _faces[idx];
+    }
+
+    Vec3f vert(int i) {
+        return _vertexes[i];
+    }
+
+private:
+    std::vector<Vec3f> _vertexes;
+    std::vector<std::array<int, 3>> _faces;
+};
+
 class render
 {
 public:
-    static void line(int x0, int y0, int x1, int y1, texture& image, const uint32_t& color) {
+    static void line(int x0, int y0, int x1, int y1, texture& image, const uint32_t& color)
+    { // Bresenham's line algorithm
         bool steep = false;
-        if (std::abs(x0-x1)<std::abs(y0-y1)) { // if the line is steep, we transpose the image
+        if (std::abs(x0-x1) < std::abs(y0-y1))
+        {
             std::swap(x0, y0);
             std::swap(x1, y1);
             steep = true;
         }
-        if (x0>x1) { // make it left-to-right
+        if (x0>x1)
+        {
             std::swap(x0, x1);
             std::swap(y0, y1);
         }
-        for (int x=x0; x<=x1; x++) {
-            float t = (x-x0)/(float)(x1-x0);
-            int y = y0*(1.-t) + y1*t;
+        for (int x=x0, y = y0, y_error = 0, dy_error = 2*(y1 - y0), dx_error = 2*(x1-x0); x<=x1; x++, y_error += dy_error)
+        {
+            if (y_error > (x1-x0))
+            {
+                 y += (y0 > y1) ? -1 : 1;
+                 y_error -= dx_error;
+            }
             if (steep) {
-                image.at(y, x) = color;
+                image.at(y, x) = color; // if transposed, de-transpose
             } else {
                 image.at(x, y) = color;
             }
         }
     }
+
+    static void mesh(model& m, texture& image, const uint32_t& color)
+    {
+        for (int i=0; i<m.nfaces(); i++)
+        {
+            std::array<int, 3> face = m.face(i);
+            for (int j=0; j<3; j++) {
+                Vec3f v0 = m.vert(face[j]);
+                Vec3f v1 = m.vert(face[(j+1)%3]);
+                int x0 = (v0.x+1.)*image.width()/2.;
+                int y0 = (v0.y+1.)*image.height()/2.;
+                int x1 = (v1.x+1.)*image.width()/2.;
+                int y1 = (v1.y+1.)*image.height()/2.;
+                line(x0, y0, x1, y1, image, color);
+            }
+        }
+    }
+};
+
+class render_context : public sdl_context
+{
+public:
+    render_context() :
+        main_window("HABR_RENDER", 1024, 1024)
+      , screen_surface(main_window.surface())
+      , screen_texture(main_window, screen_surface)
+      , head_model("../software_render/head.obj")
+    {
+
+    }
+
+    void loop() override
+    {
+        screen_texture.lockTexture();
+
+        render::mesh(head_model, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
+
+        screen_texture.unlockTexture();
+
+        screen_texture.render(main_window);
+
+        SDL_Delay(40);
+    }
+
+private:
+    window main_window;
+    surface_view screen_surface;
+    texture screen_texture;
+    model head_model;
 };
 
 int main(int argc, char *argv[])
@@ -377,23 +501,9 @@ int main(int argc, char *argv[])
     try
     {
         sdl_system sdl;
-        window main_window("HABR_RENDER", 640, 480);
-        surface_view screen_surface(main_window.surface());
-        texture screen_texture(main_window, screen_surface);
+        render_context r;
 
-        sdl.loop([&]() {
-            screen_texture.lockTexture();
-
-            render::line(13, 20, 80, 40, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
-            render::line(20, 13, 40, 80, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
-            render::line(80, 40, 13, 20, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0xff, 0x00, 0x00));
-
-            screen_texture.unlockTexture();
-
-            screen_texture.render(main_window);
-
-            SDL_Delay(40);
-        });
+        sdl.loop(r);
     }
     catch(const std::exception& exp)
     {
