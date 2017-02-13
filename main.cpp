@@ -384,8 +384,7 @@ public:
                 int itrash, idx;
                 iss >> trash; int i = 0;
                 while (iss >> idx >> trash >> itrash >> trash >> itrash) {
-                    idx--; // in wavefront obj all indices start at 1, not zero
-                    f[i++] = idx;
+                    f[i++] = idx - 1;
                 }
                 _faces.push_back(f);
             }
@@ -431,17 +430,17 @@ public:
             std::swap(x0, x1);
             std::swap(y0, y1);
         }
-        for (int x=x0, y = y0, y_error = 0, dy_error = 2*(y1 - y0), dx_error = 2*(x1-x0); x<=x1; x++, y_error += dy_error)
+        for (int x=x0, y = y0, y_error = 0, dy_error = 2*std::abs(y1 - y0), dx_error = (x1-x0); x<=x1; x++, y_error += dy_error)
         {
-            if (y_error > (x1-x0))
-            {
-                 y += (y0 > y1) ? -1 : 1;
-                 y_error -= dx_error;
-            }
             if (steep) {
                 image.at(y, x) = color; // if transposed, de-transpose
             } else {
                 image.at(x, y) = color;
+            }
+            if (y_error > dx_error)
+            {
+                 y += (y1 > y0) ? 1 : -1;
+                 y_error -= 2*dx_error;
             }
         }
     }
