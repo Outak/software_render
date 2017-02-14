@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -445,6 +446,47 @@ public:
         }
     }
 
+    static void line(Vec2i st, Vec2i fn, texture& image, const uint32_t& color)
+    {
+        line(st.x, st.y, fn.x, fn.y, image, color);
+    }
+
+    static void triangle(std::array<Vec2i, 3> vertexes, texture& image, const uint32_t& color)
+    {
+        std::sort(vertexes.begin(), vertexes.end(), [](const Vec2i& l, const Vec2i& r) {return l.y < r.y;});
+        Vec2i& bottom = vertexes[0];
+        Vec2i& mid = vertexes[1];
+        Vec2i& top = vertexes[2];
+
+        int l0 = top.y - bottom.y;
+        int l1 = mid.y - bottom.y + 1;
+        for(int y = bottom.y; y <= mid.y; ++y)
+        {
+            float k1 = (float)(y - bottom.y)/l0;
+            float k2  = (float)(y - bottom.y)/l1;
+            Vec2i left = bottom + (top - bottom)*k1;
+            Vec2i right = bottom + (mid - bottom)*k2;
+            if (left.x > right.x) std::swap(left, right);
+            for(int x = left.x; x < right.x; ++x)
+            {
+                image.at(x,y) = color;
+            }
+        }
+        l1 = top.y - mid.y + 1;
+        for(int y = mid.y; y <= top.y; ++y)
+        {
+            float k1 = (float)(y - bottom.y)/l0;
+            float k2  = (float)(y - mid.y)/l1;
+            Vec2i left = bottom + (top - bottom)*k1;
+            Vec2i right = mid + (top - mid)*k2;
+            if (left.x > right.x) std::swap(left, right);
+            for(int x = left.x; x < right.x; ++x)
+            {
+                image.at(x,y) = color;
+            }
+        }
+    }
+
     static void mesh(model& m, texture& image, const uint32_t& color)
     {
         for (int i=0; i<m.nfaces(); i++)
@@ -458,6 +500,28 @@ public:
                 int x1 = (v1.x+1.)*image.width()/2.;
                 int y1 = (v1.y+1.)*image.height()/2.;
                 line(x0, y0, x1, y1, image, color);
+            }
+        }
+    }
+
+    static void surf(model& m, texture& image, surface_view& screen_surface, Vec3f light_dir)
+    {
+        for (int i = 0; i < m.nfaces(); ++i)
+        {
+            std::array<int, 3> face = m.face(i);
+            std::array<Vec2i,3> screen_coords;
+            std::array<Vec3f,3> world_coords;
+            for (int j=0; j<3; j++)
+            {
+                Vec3f v = m.vert(face[j]);
+                screen_coords[j] = Vec2i((v.x+1.)*image.width()/2., (v.y+1.)*image.height()/2.);
+                world_coords[j]  = v;
+            }
+            Vec3f n = (world_coords[2]-world_coords[0])^(world_coords[1]-world_coords[0]);
+            n.normalize();
+            float intensity = n*light_dir;
+            if (intensity>0) {
+                triangle(screen_coords, image, SDL_MapRGB(screen_surface.pix_foramt(), intensity*255, intensity*255, intensity*255));
             }
         }
     }
@@ -479,7 +543,9 @@ public:
     {
         screen_texture.lockTexture();
 
-        render::mesh(head_model, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
+        //render::mesh(head_model, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
+        Vec3f light_dir(0,0,-1);
+        render::surf(head_model, screen_texture, screen_surface, light_dir);
 
         screen_texture.unlockTexture();
 
