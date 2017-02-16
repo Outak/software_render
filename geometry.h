@@ -16,8 +16,12 @@ template <class t> struct Vec2 {
     inline Vec2<t> operator +(const Vec2<t> &V) const { return Vec2<t>(u+V.u, v+V.v); }
     inline Vec2<t> operator -(const Vec2<t> &V) const { return Vec2<t>(u-V.u, v-V.v); }
     inline Vec2<t> operator *(float f)          const { return Vec2<t>(u*f, v*f); }
+    inline t       operator *(const Vec2<t> &v) const { return x*v.x + y*v.y; }
     template <class > friend std::ostream& operator<<(std::ostream& s, Vec2<t>& v);
 };
+
+template <class t>
+inline Vec2<t> vabs(const Vec2<t>& V) { return Vec2<t>(std::abs(V.u), std::abs(V.v)); }
 
 template <class t> struct Vec3 {
     union {
