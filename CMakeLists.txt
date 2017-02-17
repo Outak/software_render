@@ -15,8 +15,9 @@ set(TARGET_NAME HABR_RENDER)
 create_target(${TARGET_NAME} EXEC DEBUG "")
 
 add_subdirectory(sdl)
-
-add_header_file(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/geometry.h)
+add_subdirectory(model)
+add_subdirectory(geometry)
+add_subdirectory(render)
 
 add_source_file(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 

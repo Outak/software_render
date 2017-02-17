@@ -1,27 +1,8 @@
-#ifndef __GEOMETRY_H__
-#define __GEOMETRY_H__
+#ifndef VEC3_HPP
+#define VEC3_HPP
 
 #include <cmath>
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <class t> struct Vec2 {
-    union {
-        struct {t u, v;};
-        struct {t x, y;};
-        t raw[2];
-    };
-    Vec2() : u(0), v(0) {}
-    Vec2(t _u, t _v) : u(_u),v(_v) {}
-    inline Vec2<t> operator +(const Vec2<t> &V) const { return Vec2<t>(u+V.u, v+V.v); }
-    inline Vec2<t> operator -(const Vec2<t> &V) const { return Vec2<t>(u-V.u, v-V.v); }
-    inline Vec2<t> operator *(float f)          const { return Vec2<t>(u*f, v*f); }
-    inline t       operator *(const Vec2<t> &v) const { return x*v.x + y*v.y; }
-    template <class > friend std::ostream& operator<<(std::ostream& s, Vec2<t>& v);
-};
-
-template <class t>
-inline Vec2<t> vabs(const Vec2<t>& V) { return Vec2<t>(std::abs(V.u), std::abs(V.v)); }
+#include <ostream>
 
 template <class t> struct Vec3 {
     union {
@@ -41,19 +22,12 @@ template <class t> struct Vec3 {
     template <class > friend std::ostream& operator<<(std::ostream& s, Vec3<t>& v);
 };
 
-typedef Vec2<float> Vec2f;
-typedef Vec2<int>   Vec2i;
 typedef Vec3<float> Vec3f;
 typedef Vec3<int>   Vec3i;
-
-template <class t> std::ostream& operator<<(std::ostream& s, Vec2<t>& v) {
-    s << "(" << v.x << ", " << v.y << ")\n";
-    return s;
-}
 
 template <class t> std::ostream& operator<<(std::ostream& s, Vec3<t>& v) {
     s << "(" << v.x << ", " << v.y << ", " << v.z << ")\n";
     return s;
 }
 
-#endif //__GEOMETRY_H__
+#endif // VEC3_HPP
