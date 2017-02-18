@@ -14,6 +14,7 @@ public:
     virtual int height() = 0;
     virtual SDL_PixelFormat* pix_foramt() = 0;
     virtual uint32_t foramt() = 0;
+    virtual uint32_t map_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) = 0;
 };
 
 class sdl_surface_store : public sdl_surface
@@ -32,6 +33,7 @@ public:
     int height() override;
     SDL_PixelFormat* pix_foramt() override;
     virtual uint32_t foramt() override;
+    virtual uint32_t map_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) override;
 
 private:
     std::unique_ptr<SDL_Surface, surface_deleter> _surface;
@@ -53,6 +55,7 @@ public:
     int height() override;
     SDL_PixelFormat* pix_foramt() override;
     virtual uint32_t foramt() override;
+    virtual uint32_t map_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0) override;
 
 private:
     std::unique_ptr<SDL_Surface, empty_deleter> _surface;

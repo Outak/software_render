@@ -32,6 +32,11 @@ uint32_t sdl_surface_store::foramt()
     return _surface.get()->format->format;
 }
 
+uint32_t sdl_surface_store::map_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    return SDL_MapRGBA(pix_foramt(), r, g, b, a);
+}
+
 SDL_PixelFormat* sdl_surface_store::pix_foramt()
 {
     return _surface.get()->format;
@@ -63,6 +68,11 @@ int sdl_surface_view::height()
 uint32_t sdl_surface_view::foramt()
 {
     return _surface.get()->format->format;
+}
+
+uint32_t sdl_surface_view::map_rgb(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    return SDL_MapRGBA(pix_foramt(), r, g, b, a);
 }
 
 SDL_PixelFormat* sdl_surface_view::pix_foramt()

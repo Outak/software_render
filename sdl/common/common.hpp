@@ -1,5 +1,5 @@
-#ifndef COMMON_HPP
-#define COMMON_HPP
+#ifndef SDL_COMMON_HPP
+#define SDL_COMMON_HPP
 
 #include <stdexcept>
 #include <string>
@@ -15,4 +15,4 @@ private:
     std::string _msg;
 };
 
-#endif // COMMON_HPP
+#endif // SDL_COMMON_HPP
