@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     try
     {
         sdl_system sdl;
-        render_context r;
+        test_context r;
 
         sdl.loop(r);
     }
