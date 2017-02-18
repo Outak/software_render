@@ -1,5 +1,5 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#ifndef SOFTWARE_RENDERER_HPP
+#define SOFTWARE_RENDERER_HPP
 
 #include <algorithm>
 
@@ -114,12 +114,11 @@ public:
 
     static void mesh(model& m, sdl_texture& image, const uint32_t& color)
     {
-        for (int i=0; i<m.nfaces(); i++)
+        for (auto& face: m.faces)
         {
-            std::array<int, 3> face = m.face(i);
             for (int j=0; j<3; j++) {
-                Vec3f v0 = m.vert(face[j]);
-                Vec3f v1 = m.vert(face[(j+1)%3]);
+                Vec3f v0 = m.vertexes[face.coords[j]];
+                Vec3f v1 = m.vertexes[face.coords[(j+1)%3]];
                 int x0 = (v0.x+1.)*image.width()/2.;
                 int y0 = (v0.y+1.)*image.height()/2.;
                 int x1 = (v1.x+1.)*image.width()/2.;
@@ -131,14 +130,13 @@ public:
 
     static void surf(model& m, sdl_texture& image, sdl_surface& screen_surface, Vec3f light_dir)
     {
-        for (int i = 0; i < m.nfaces(); ++i)
+        for (auto& face: m.faces)
         {
-            std::array<int, 3> face = m.face(i);
             std::array<Vec2i,3> screen_coords;
             std::array<Vec3f,3> world_coords;
             for (int j=0; j<3; j++)
             {
-                Vec3f v = m.vert(face[j]);
+                Vec3f v = m.vertexes[face.coords[j]];
                 screen_coords[j] = Vec2i((v.x+1.)*image.width()/2., (v.y+1.)*image.height()/2.);
                 world_coords[j]  = v;
             }
@@ -152,4 +150,4 @@ public:
     }
 };
 
-#endif // RENDERER_HPP
+#endif // SOFTWARE_RENDERER_HPP

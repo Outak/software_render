@@ -1,11 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <array>
-#include <memory>
 
 #include <SDL2/SDL.h>
 
@@ -13,9 +7,11 @@
 
 #include "geometry/geometry.hpp"
 
+#include "file_system/wavefront_obj.hpp"
+
 #include "model/model.hpp"
 
-#include "render/render.hpp"
+#include "software_render/software_render.hpp"
 
 class render_context : public sdl_context
 {
@@ -25,9 +21,9 @@ public:
       , main_render(main_window)
       , screen_surface(main_window.surface())
       , screen_texture(main_render, screen_surface)
-      , head_model("../software_render/head.obj")
     {
-
+        std::ifstream mfile("../software_render/head.obj");
+        head_model = wavefront_obj::read_model(mfile);
     }
 
     void loop() override

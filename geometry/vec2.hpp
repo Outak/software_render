@@ -4,7 +4,8 @@
 #include <cmath>
 #include <ostream>
 
-template <class t> struct Vec2 {
+template <class t> struct Vec2
+{
     union {
         struct {t u, v;};
         struct {t x, y;};
