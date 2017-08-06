@@ -6,16 +6,16 @@
 #include "vec2.hpp"
 #include "vec3.hpp"
 
-typedef Vec2i point2d;
-typedef Vec3i point3d;
+typedef cmn::vec2f point2d;
+typedef cmn::vec3f point3d;
 
-typedef std::array<Vec2i, 2> line2d;
-typedef std::array<Vec3i, 2> line3d;
+typedef std::array<point2d, 2> line2d;
+typedef std::array<point3d, 2> line3d;
 
-typedef std::array<Vec2i, 3> triangle2d;
-typedef std::array<Vec3i, 3> triangle3d;
+typedef std::array<point2d, 3> triangle2d;
+typedef std::array<point3d, 3> triangle3d;
 
-typedef std::array<Vec2i, 4> rect2d;
-typedef std::array<Vec3i, 4> rect3d;
+typedef std::array<point2d, 4> rect2d;
+typedef std::array<point3d, 4> rect3d;
 
 #endif // PRIMITIVES_HPP

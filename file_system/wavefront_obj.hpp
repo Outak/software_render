@@ -24,9 +24,9 @@ public:
     static model read_model(std::istream& input);
 
     static line_type parse_line_type(std::string& input);
-    static Vec3f read_vertex(const std::string& input);
-    static Vec3f read_texture_coords(const std::string& input);
-    static Vec3f read_normal(const std::string& input);
+    static cmn::vec3f read_vertex(const std::string& input);
+    static cmn::vec3f read_texture_coords(const std::string& input);
+    static cmn::vec3f read_normal(const std::string& input);
     static model::face_t read_face(const std::string& input);
 };
 

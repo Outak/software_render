@@ -12,7 +12,7 @@ find_package(SDL2 REQUIRED ttf)
 
 set(TARGET_NAME HABR_RENDER)
 
-create_target(${TARGET_NAME} EXEC DEBUG "")
+create_target(${TARGET_NAME} EXEC RELEASE "")
 
 add_subdirectory(sdl)
 add_subdirectory(model)

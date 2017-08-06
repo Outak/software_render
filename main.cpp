@@ -26,20 +26,23 @@ public:
     {
         screen_texture.lockTexture();
 
-        std::array<Vec2i, 3> t0 = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
-        std::array<Vec2i, 3> t1 = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
-        std::array<Vec2i, 3> t2 = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
+        render::line(cmn::vec2i(200, 300), cmn::vec2i(337, 387), screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
+        render::line(cmn::vec2i(225, 200), cmn::vec2i(190, 315), screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0xff, 0xff, 0x00));
 
 
-        render::triangle(t0, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
-        render::triangle(t1, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0x00, 0xff));
-        render::triangle(t2, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0xff, 0x00, 0x00));
+        render::line(cmn::vec2i(437, 487), cmn::vec2i(400, 400), screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0xff, 0x00, 0x00));
+        render::line(cmn::vec2i(290, 415), cmn::vec2i(325, 300), screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0xff));
+
+        //std::array<Vec2i, 3> t0 = {Vec2i(10, 70),   Vec2i(50, 160),  Vec2i(70, 80)};
+        //std::array<Vec2i, 3> t1 = {Vec2i(180, 50),  Vec2i(150, 1),   Vec2i(70, 180)};
+        //std::array<Vec2i, 3> t2 = {Vec2i(180, 150), Vec2i(120, 160), Vec2i(130, 180)};
+        //render::triangle(t0, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0xff, 0x00));
+        //render::triangle(t1, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0x00, 0x00, 0xff));
+        //render::triangle(t2, screen_texture, SDL_MapRGB(screen_surface.pix_foramt(), 0xff, 0x00, 0x00));
 
         screen_texture.unlockTexture();
 
         screen_texture.render();
-
-        SDL_Delay(40);
     }
 
 private:
@@ -66,7 +69,7 @@ public:
     void loop() override
     {
         screen_texture.lockTexture();
-        Vec3f light_dir(0.00,0,-1);
+        cmn::vec3f light_dir(0.00,0,-1);
 
         render::surf(head_model, screen_texture, screen_surface, light_dir);
 
@@ -75,8 +78,6 @@ public:
         screen_texture.unlockTexture();
 
         screen_texture.render();
-
-        SDL_Delay(40);
     }
 
 private:
@@ -87,12 +88,15 @@ private:
     model head_model;
 };
 
+#include "geometry/vecN.hpp"
+
 int main(int argc, char *argv[])
 {
     try
     {
         sdl_system sdl;
-        test_context r;
+        render_context r;
+        //test_context r;
 
         sdl.loop(r);
     }

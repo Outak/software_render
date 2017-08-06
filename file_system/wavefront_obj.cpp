@@ -55,33 +55,33 @@ wavefront_obj::line_type wavefront_obj::parse_line_type(std::string& input)
     return type;
 }
 
-Vec3f wavefront_obj::read_vertex(const std::string& input)
+cmn::vec3f wavefront_obj::read_vertex(const std::string& input)
 {
     std::istringstream iss(input);
-    Vec3f tmp;
-    iss >> tmp.x;
-    iss >> tmp.y;
-    iss >> tmp.z;
+    cmn::vec3f tmp;
+    iss >> tmp.x();
+    iss >> tmp.y();
+    iss >> tmp.z();
     return tmp;
 }
 
-Vec3f wavefront_obj::read_texture_coords(const std::string& input)
+cmn::vec3f wavefront_obj::read_texture_coords(const std::string& input)
 {
     std::istringstream iss(input);
-    Vec3f tmp;
-    iss >> tmp.x;
-    iss >> tmp.y;
-    iss >> tmp.z;
+    cmn::vec3f tmp;
+    iss >> tmp.x();
+    iss >> tmp.y();
+    iss >> tmp.z();
     return tmp;
 }
 
-Vec3f wavefront_obj::read_normal(const std::string& input)
+cmn::vec3f wavefront_obj::read_normal(const std::string& input)
 {
     std::istringstream iss(input);
-    Vec3f tmp;
-    iss >> tmp.x;
-    iss >> tmp.y;
-    iss >> tmp.z;
+    cmn::vec3f tmp;
+    iss >> tmp.x();
+    iss >> tmp.y();
+    iss >> tmp.z();
     return tmp;
 }
 

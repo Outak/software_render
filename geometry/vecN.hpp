@@ -1,5 +1,5 @@
-#ifndef VEC2_HPP
-#define VEC2_HPP
+#ifndef VECN_HPP
+#define VECN_HPP
 
 #include <stdexcept>
 #include <cmath>
@@ -14,13 +14,11 @@
 namespace cmn
 {
 
-template<class T>
-class vec2
+template<class T, size_t N>
+class vecn
 {
 public:
-    static const size_t dims = 2;
-    static const size_t x_idx = 0;
-    static const size_t y_idx = 1;
+    static const size_t dims = N;
 
     typedef std::array<T, dims> store_type;
     typedef typename store_type::value_type value_type;
@@ -33,7 +31,7 @@ public:
     typedef typename store_type::difference_type difference_type;
     typedef typename store_type::size_type size_type;
 
-    vec2()
+    vecn()
     {
         for(auto& val: _data)
         {
@@ -41,94 +39,88 @@ public:
         }
     }
 
-    vec2(const value_type& x, const value_type& y)
-    {
-       (*this).x() = x;
-       (*this).y() = y;
-    }
+    vecn(const vecn& that) = default;
+    vecn& operator=(const vecn& that) = default;
 
-    vec2(const vec2& that) = default;
-    vec2& operator=(const vec2& that) = default;
-
-    vec2(vec2&& that) = default;
-    vec2& operator=(vec2&& that) = default;
+    vecn(vecn&& that) = default;
+    vecn& operator=(vecn&& that) = default;
 
     template<class that_value_type>
-    vec2(const vec2<that_value_type>& that)
+    vecn(const vecn<that_value_type, dims>& that)
     {
         std::copy(that.begin(), that.end(), begin());
     }
 
     template<class that_value_type>
-    vec2<value_type>& operator=(const vec2<that_value_type>& that)
+    vecn<value_type, dims>& operator=(const vecn<that_value_type, dims>& that)
     {
         std::copy(that.begin(), that.end(), begin());
         return *this;
     }
     template<class that_value_type>
-    vec2( vec2<that_value_type>&& that)
+    vecn( vecn<that_value_type, dims>&& that)
     {
         std::copy(that.begin(), that.end(), begin());
     }
 
     template<class that_value_type>
-    vec2<value_type>& operator=(vec2<that_value_type>&& that)
+    vecn<value_type, dims>& operator=(vecn<that_value_type, dims>&& that)
     {
         std::copy(that.begin(), that.end(), begin());
         return *this;
     }
 
-    vec2(const std::initializer_list<value_type>& init)
+    vecn(const std::initializer_list<value_type>& init)
     {
         if (init.size() != _data.size())
         {
-            throw std::length_error("vec2 initializer list size mismatch.");
+            throw std::length_error("vecn initializer list size mismatch.");
         }
         std::copy(init.begin(), init.end(), begin());
     }
 
-    vec2<value_type>& operator=(const std::initializer_list<value_type>& init)
+    vecn<value_type, dims>& operator=(const std::initializer_list<value_type>& init)
     {
         if (init.size() != _data.size())
         {
-            throw std::length_error("vec2 initializer list size mismatch.");
+            throw std::length_error("vecn initializer list size mismatch.");
         }
         std::copy(init.begin(), init.end(), begin());
         return *this;
     }
 
     template<class that_value_type>
-    vec2(const std::initializer_list<that_value_type>& init)
+    vecn(const std::initializer_list<that_value_type>& init)
     {
         if (init.size() != _data.size())
         {
-            throw std::length_error("vec2 initializer list size mismatch.");
+            throw std::length_error("vecn initializer list size mismatch.");
         }
         std::copy(init.begin(), init.end(), begin());
     }
 
     template<class that_value_type>
-    vec2<value_type>& operator=(const std::initializer_list<that_value_type>& init)
+    vecn<value_type, dims>& operator=(const std::initializer_list<that_value_type>& init)
     {
         if (init.size() != _data.size())
         {
-            throw std::length_error("vec2 initializer list size mismatch.");
+            throw std::length_error("vecn initializer list size mismatch.");
         }
         std::copy(init.begin(), init.end(), begin());
         return *this;
     }
 
-    ~vec2() {}
+    ~vecn() {}
 
     reference& operator[](const size_type& idx)
     {
-        if (idx >= size()) throw std::out_of_range("vec2 out of range error");
+        if (idx >= size()) throw std::out_of_range("vecn out of range error");
         return _data[idx];
     }
 
     const_reference& operator[](const size_type& idx) const
     {
-        if (idx >= size()) throw std::out_of_range("vec2 out of range error");
+        if (idx >= size()) throw std::out_of_range("vecn out of range error");
         return _data[idx];
     }
 
@@ -142,13 +134,13 @@ public:
         return _data.max_size();
     }
 
-    bool operator == (const vec2<value_type>& that) const
+    bool operator == (const vecn<value_type, dims>& that) const
     {
         auto res = std::mismatch((*this).begin(), (*this).end(), that.begin());
         return (res.first == end() && res.second == that.end());
     }
 
-    bool operator != (const vec2<value_type>& that) const
+    bool operator != (const vecn<value_type, dims>& that) const
     {
         return !(*this == that);
     }
@@ -166,22 +158,22 @@ public:
         }
     }
 
-    void swap(vec2<value_type>& that)
+    void swap(vecn<value_type, dims>& that)
     {
         _data.swap(that._data);
     }
 
-    vec2<value_type> operator - () const
+    vecn<value_type, dims> operator - () const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(), std::negate<value_type>());
         return tmp;
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator + (const vec2<that_value_type>& that) const
+    vecn<return_value_type, dims> operator + (const vecn<that_value_type, dims>& that) const
     {
-        vec2<return_value_type> tmp;
+        vecn<return_value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), that.begin(), tmp.begin(),
                      [](const return_value_type& f, const return_value_type& s) -> return_value_type
         {
@@ -191,9 +183,9 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator - (const vec2<that_value_type>& that) const
+    vecn<return_value_type, dims> operator - (const vecn<that_value_type, dims>& that) const
     {
-        vec2<return_value_type> tmp;
+        vecn<return_value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), that.begin(), tmp.begin(),
                      [](const return_value_type& f, const return_value_type& s) -> return_value_type
         {
@@ -203,7 +195,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type>& operator += (const vec2<that_value_type>& that)
+    vecn<return_value_type, dims>& operator += (const vecn<that_value_type, dims>& that)
     {
         std::transform((*this).begin(), (*this).end(), that.begin(), (*this).begin(),
                      [](const return_value_type& f, const return_value_type& s) -> return_value_type
@@ -214,7 +206,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type>& operator -= (const vec2<that_value_type>& that)
+    vecn<return_value_type, dims>& operator -= (const vecn<that_value_type, dims>& that)
     {
         std::transform((*this).begin(), (*this).end(), that.begin(), (*this).begin(),
                      [](const return_value_type& f, const return_value_type& s) -> return_value_type
@@ -225,9 +217,9 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator + (const that_value_type& value) const
+    vecn<return_value_type, dims> operator + (const that_value_type& value) const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(),
                      [&value](const return_value_type& val) -> return_value_type
         {
@@ -237,9 +229,9 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator - (const that_value_type& value) const
+    vecn<return_value_type, dims> operator - (const that_value_type& value) const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(),
                      [&value](const return_value_type& val) -> return_value_type
         {
@@ -249,7 +241,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator += (const that_value_type& value)
+    vecn<return_value_type, dims> operator += (const that_value_type& value)
     {
         std::transform((*this).begin(), (*this).end(), (*this).begin(),
                      [&value](const return_value_type& val) -> return_value_type
@@ -260,7 +252,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator -= (const that_value_type& value)
+    vecn<return_value_type, dims> operator -= (const that_value_type& value)
     {
         std::transform((*this).begin(), (*this).end(), (*this).begin(),
                      [&value](const return_value_type& val) -> return_value_type
@@ -271,9 +263,9 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator * (const that_value_type& value) const
+    vecn<return_value_type, dims> operator * (const that_value_type& value) const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(),
                      [&value](const return_value_type& val) -> return_value_type
         {
@@ -283,9 +275,9 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator / (const that_value_type& value) const
+    vecn<return_value_type, dims> operator / (const that_value_type& value) const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(),
                      [&value](const return_value_type& val) -> return_value_type
         {
@@ -295,7 +287,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator *= (const that_value_type& value)
+    vecn<return_value_type, dims> operator *= (const that_value_type& value)
     {
         std::transform((*this).begin(), (*this).end(), (*this).begin(),
                      [&value](const return_value_type& val) -> return_value_type
@@ -306,7 +298,7 @@ public:
     }
 
     template<class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type>
-    vec2<return_value_type> operator /= (const that_value_type& value)
+    vecn<return_value_type, dims> operator /= (const that_value_type& value)
     {
         std::transform((*this).begin(), (*this).end(), (*this).begin(),
                      [&value](const return_value_type& val) -> return_value_type
@@ -317,18 +309,18 @@ public:
     }
 
     template<class that_value_type>
-    double operator * (const vec2<that_value_type>& that) const
+    double operator * (const vecn<that_value_type, dims>& that) const
     {
         return (*this).prod(that);
     }
 
-    double prod(const vec2<value_type>& that) const
+    double prod(const vecn<value_type, dims>& that) const
     {
         return  std::inner_product((*this).begin(), (*this).end(), that.begin(), 0.0);
     }
 
     template<class that_value_type>
-    double prod(const vec2<that_value_type>& that) const
+    double prod(const vecn<that_value_type, dims>& that) const
     {
         return  std::inner_product((*this).begin(), (*this).end(), that.begin(), 0.0);
     }
@@ -338,9 +330,9 @@ public:
         return std::sqrt((*this).prod(*this));
     }
 
-    vec2<value_type> abs() const
+    vecn<value_type, dims> abs() const
     {
-        vec2<value_type> tmp;
+        vecn<value_type, dims> tmp;
         std::transform((*this).begin(), (*this).end(), tmp.begin(), [](const_reference val){return std::abs(val);});
         return tmp;
     }
@@ -375,37 +367,14 @@ public:
         return _data.cend();
     }
 
-    reference x()
-    {
-        return _data[x_idx];
-    }
-
-    const_reference x() const
-    {
-        return _data[x_idx];
-    }
-
-    reference y()
-    {
-        return _data[y_idx];
-    }
-
-    const_reference y() const
-    {
-        return _data[y_idx];
-    }
-
 private:
     store_type _data;
 };
 
-typedef vec2<int> vec2i;
-typedef vec2<float> vec2f;
-
 } // end of cmn namespace
 
-template<class value_type>
-std::ostream& operator << (std::ostream& out, const cmn::vec2<value_type>& vector)
+template<class value_type, size_t dims>
+std::ostream& operator << (std::ostream& out, const cmn::vecn<value_type, dims>& vector)
 {
     auto it = vector.begin();
     out << '[' << *(it++);
@@ -417,25 +386,25 @@ std::ostream& operator << (std::ostream& out, const cmn::vec2<value_type>& vecto
     return out;
 }
 
-template<class value_type, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
+template<class value_type, size_t dims, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
          , class = typename std::enable_if<std::is_arithmetic<that_value_type>::value>::type>
-cmn::vec2<return_value_type> operator + (const that_value_type& val, const cmn::vec2<value_type>& v)
+cmn::vecn<return_value_type, dims> operator + (const that_value_type& val, const cmn::vecn<value_type, dims>& v)
 {
     return (v + val);
 }
 
-template<class value_type, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
+template<class value_type, size_t dims, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
          , class = typename std::enable_if<std::is_arithmetic<that_value_type>::value>::type>
-cmn::vec2<return_value_type> operator - (const that_value_type& val, const cmn::vec2<value_type>& v)
+cmn::vecn<return_value_type, dims> operator - (const that_value_type& val, const cmn::vecn<value_type, dims>& v)
 {
     return -(v - val);
 }
 
-template<class value_type, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
+template<class value_type, size_t dims, class that_value_type, class return_value_type = typename std::common_type<value_type, that_value_type>::type
          , class = typename std::enable_if<std::is_arithmetic<that_value_type>::value>::type>
-cmn::vec2<return_value_type> operator * (const that_value_type& val, const cmn::vec2<value_type>& v)
+cmn::vecn<return_value_type, dims> operator * (const that_value_type& val, const cmn::vecn<value_type, dims>& v)
 {
     return (v * val);
 }
 
-#endif // VEC2_HPP
+#endif // VECN_HPP

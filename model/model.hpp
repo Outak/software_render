@@ -11,16 +11,16 @@ public:
     class face_t
     {
     public:
-        std::array<int, 3> coords;
-        std::array<int, 3> texture;
-        std::array<int, 3> normals;
+        point3d coords;
+        point3d texture;
+        point3d normals;
     };
 
     model();
 
-    std::vector<Vec3f> vertexes;
-    std::vector<Vec3f> texture_vertexes;
-    std::vector<Vec3f> normals;
+    std::vector<point3d> vertexes;
+    std::vector<point3d> texture_vertexes;
+    std::vector<point3d> normals;
     std::vector<face_t> faces;
 };
 
